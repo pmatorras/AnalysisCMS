@@ -1236,9 +1236,10 @@ void AnalysisCMS::DefineHistograms(int     ichannel,
   h_counterLum   [ichannel][icut][ijet] = new TH1D("h_counterLum"    + suffix, "",    3, 0,    3);
   h_fakes        [ichannel][icut][ijet] = new TH1D("h_fakes"         + suffix, "",    9, 0,    9);
   h_nvtx         [ichannel][icut][ijet] = new TH1D("h_nvtx"          + suffix, "",   50, 0,   50);
-  h_ptww         [ichannel][icut][ijet] = new TH1D("h_ptww"          + suffix, "", 2000, 0, 2000);
+//h_ptww         [ichannel][icut][ijet] = new TH1D("h_ptww"          + suffix, "", 2000, 0, 2000);
 
   h_pt2l         [ichannel][icut][ijet] = new TH1D("h_pt2l"          + suffix, "", 2000, 0, 2000);
+/*
   h_sumjpt12     [ichannel][icut][ijet] = new TH1D("h_sumjpt12"      + suffix, "", 2000, 0, 2000);
   h_sumpt12      [ichannel][icut][ijet] = new TH1D("h_sumpt12"       + suffix, "", 2000, 0, 2000);
   h_dyll         [ichannel][icut][ijet] = new TH1D("h_dyll"          + suffix, "",  100, 0,    5);
@@ -1287,8 +1288,10 @@ void AnalysisCMS::DefineHistograms(int     ichannel,
   h_jet2phi       [ichannel][icut][ijet] = new TH1D("h_jet2phi"        + suffix, "",  200, -3.2,  3.2);
   h_metPfType1Phi [ichannel][icut][ijet] = new TH1D("h_metPfType1Phi"  + suffix, "",  200, -3.2,  3.2);
   h_metTtrkPhi    [ichannel][icut][ijet] = new TH1D("h_metTtrkPhi"     + suffix, "",  200, -3.2,  3.2);
+*/
   h_lep1pt        [ichannel][icut][ijet] = new TH1D("h_lep1pt"         + suffix, "", 2000,    0, 2000);
-  h_lep2pt        [ichannel][icut][ijet] = new TH1D("h_lep2pt"         + suffix, "", 2000,    0, 2000); 
+  h_lep2pt        [ichannel][icut][ijet] = new TH1D("h_lep2pt"         + suffix, "", 2000,    0, 2000);
+/*  
   h_lep1pt_gen    [ichannel][icut][ijet] = new TH1D("h_lep1pt_gen"     + suffix, "", 2000,    0, 2000);
   h_lep2pt_gen    [ichannel][icut][ijet] = new TH1D("h_lep2pt_gen"     + suffix, "", 2000,    0, 2000);
   h_jet1pt        [ichannel][icut][ijet] = new TH1D("h_jet1pt"         + suffix, "", 2000,    0, 2000);
@@ -1336,14 +1339,17 @@ void AnalysisCMS::DefineHistograms(int     ichannel,
   h_invGamma      [ichannel][icut][ijet] = new TH1D("h_invGamma"       + suffix, "",  100,    0,  2.0);
   h_Mdr           [ichannel][icut][ijet] = new TH1D("h_Mdr"            + suffix, "",  100,    0,  500);
   h_DeltaPhiRll   [ichannel][icut][ijet] = new TH1D("h_DeltaPhiRll"    + suffix, "",  100,    0,  3.2);
+*/
 
   // TH2 histograms
   //----------------------------------------------------------------------------
+/*
   h_metPfType1_m2l[ichannel][icut][ijet] = new TH2D("h_metPfType1_m2l" + suffix, "", 300, 0,  300, 100, 40, 140);
   h_mpmet_m2l     [ichannel][icut][ijet] = new TH2D("h_mpmet_m2l"      + suffix, "", 150, 0,  150, 100, 40, 140);
   h_mt2ll_m2l     [ichannel][icut][ijet] = new TH2D("h_mt2ll_m2l"      + suffix, "", 150, 0,  150, 100, 40, 140);
   h_2ht           [ichannel][icut][ijet] = new TH2D("h_2ht"            + suffix, "", 200, 0,  800, 200,  0, 800);
   h_dym           [ichannel][icut][ijet] = new TH2D("h_dym"            + suffix, "", 200, 0, 1000, 100,  0,   5);
+*/
 }
 
 

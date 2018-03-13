@@ -1,0 +1,201 @@
+#define AnalysisHWW_cxx
+#include "../include/AnalysisHWW.h"
+
+
+//------------------------------------------------------------------------------
+// AnalysisHWW
+//------------------------------------------------------------------------------
+AnalysisHWW::AnalysisHWW(TTree* tree, TString systematic) : AnalysisCMS(tree, systematic)
+{
+  SetWriteHistograms(true);
+  SetWriteMinitree  (false);
+  SetMinitreePath("./debug/");
+}
+
+
+//------------------------------------------------------------------------------
+// Loop
+//------------------------------------------------------------------------------
+void AnalysisHWW::Loop(TString analysis, TString filename, float luminosity){
+  if (fChain == 0) return;
+
+  if (!_writehistograms && !_writeminitree)
+    {
+      printf("\n [AnalysisHWW::Loop] Please check. You are not writing any output...\n\n");
+
+      return;
+    }
+
+  Setup(analysis, filename, luminosity);
+
+
+  // Define histograms
+  //----------------------------------------------------------------------------
+  if (_writehistograms)
+    {
+      root_output->cd();
+
+      for (int j=0; j<ncut; j++) {
+
+	for (int k=0; k<=njetbin; k++) {
+
+	  TString sbin = (k < njetbin) ? Form("/%djet", k) : "";
+
+	  TString directory = scut[j] + sbin;
+
+	  root_output->cd();
+
+	  if (k < njetbin) gDirectory->mkdir(directory);
+
+	  root_output->cd(directory);
+
+	  for (int i=ee; i<=ll; i++) {
+
+	    TString suffix = "_" + schannel[i];
+	    
+	    DefineHistograms(i, j, k, suffix);
+	  }
+	}
+      }
+
+      root_output->cd();
+    }
+
+
+  // Loop over events
+  //----------------------------------------------------------------------------
+  for (Long64_t jentry=0; jentry<_nentries;jentry++) {
+  
+    Long64_t ientry = LoadTree(jentry);
+
+    if (ientry < 0) break;
+
+    fChain->GetEntry(jentry);
+
+    PrintProgress(jentry, _nentries);
+
+    EventSetup();
+
+
+    // Define the channel based on the number of electrons
+    //--------------------------------------------------------------------------
+    _nelectron = 0;
+
+    if (abs(std_vector_lepton_flavour->at(0)) == ELECTRON_FLAVOUR) _nelectron++;
+    if (abs(std_vector_lepton_flavour->at(1)) == ELECTRON_FLAVOUR) _nelectron++;
+
+    if      (_nelectron == 2) _channel = ee;
+    else if (_nelectron == 1) _channel = em;
+    else if (_nelectron == 0) _channel = mm;
+
+
+    bool pass;
+
+
+    // No cuts
+    //--------------------------------------------------------------------------
+    pass = true;
+
+    FillLevelHistograms(HWW_00_NoCuts, pass);
+
+
+    // Common cuts
+    //--------------------------------------------------------------------------
+    bool pass_os = (std_vector_lepton_flavour->at(0) * std_vector_lepton_flavour->at(1) < 0); //oposite charge sign
+    bool pass_ss = (std_vector_lepton_flavour->at(0) * std_vector_lepton_flavour->at(1) > 0); //same charge sign
+	 int pt2cut=10;
+	 if (_channel==ee) pt2cut =13;
+    bool pass_pt =
+      (std_vector_lepton_pt->at(0) > 25) &&
+      (std_vector_lepton_pt->at(1) > pt2cut)&&
+      (std_vector_lepton_pt->at(2) < 10);
+   bool pass_emu=(_channel==em);
+	bool pass_zveto = (_channel == em || fabs(mll - Z_MASS) > 15);
+	bool pass_pteta = (std_vector_jet_pt->at(0)<30);
+	/*
+   bool pass_pteta = false;	
+	int njets;
+    for (int j=0; j<std_vector_jet_pt->size(); j++){
+		if (std_vector_jet_eta->at(j) > 4.7) continue;
+		if (std_vector_jet_pt->at(j) > 30) njets++;
+    }
+	if(njets==0) pass_pteta = true;
+	*/
+
+ 	bool pass_bveto = false;
+	
+	for (int j=0; j<std_vector_jet_pt->size(); j++){
+		pass_bveto &= (std_vector_jet_pt->at(j) < 30 || std_vector_jet_cmvav2->at(j) < -0.5884);
+   }
+	
+	//bool pass_l2-met = (m
+    // HWW
+    // https://github.com/latinos/PlotsConfigurations/blob/master/Configurations/HWWRegions/WW/Full2016/cuts.py
+    //--------------------------------------------------------------------------
+    //Pass general cuts
+	 pass = (pass_os && pass_pt  && mll > 12 && ptll>30);
+
+    FillLevelHistograms(HWW_01_presel, pass);
+	 // pass z-veto
+	 pass = (_channel==ee && pass_os && pass_pt && pass_zveto && mll > 12 && ptll > 30);
+    FillLevelHistograms(HWW_02_Zvetoee,pass);
+	 pass = (pass_emu && pass_os && pass_pt && pass_zveto  && mll > 12 && ptll > 30);
+    FillLevelHistograms(HWW_03_Zvetoemu,pass);
+	 pass = (_channel==mm && pass_os && pass_pt && pass_zveto && mll > 12 && ptll > 30);
+    FillLevelHistograms(HWW_04_Zvetomumu,pass);
+
+	 //cut missing energy.
+	 pass = (_channel==ee && pass_os && pass_pt && pass_zveto && mll > 12 && ptll > 30 &&  metPfType1 > 45);
+    FillLevelHistograms(HWW_05_METee,pass);
+	 pass = (pass_emu && pass_os && pass_pt && pass_zveto && mll > 12 && ptll > 30 && metPfType1 > 20);
+    FillLevelHistograms(HWW_06_METemu,pass);
+	 pass = (_channel==mm && pass_os && pass_pt && pass_zveto && mll > 12 && ptll > 30 && metPfType1 > 45);
+    FillLevelHistograms(HWW_07_METmumu,pass);
+
+	 //cut for the met quadrimomentum
+	 pass = (_channel==ee && pass_os && pass_pt && pass_zveto && mll > 12 && ptll > 30 && mth > 60 && metPfType1 > 45);
+    FillLevelHistograms(HWW_08_Mthee,pass);
+	 pass = (pass_emu && pass_os && pass_pt && pass_zveto && mll > 12 && ptll > 30 && mth > 60 && metPfType1 > 20);
+    FillLevelHistograms(HWW_09_Mthemu,pass);
+	 pass = (_channel==mm && pass_os && pass_pt && pass_zveto && mll > 12 && ptll > 30 && mth > 60 && metPfType1 > 45);
+    FillLevelHistograms(HWW_10_Mthmumu,pass);
+
+	 //cut for jet pt and jet eta
+	 pass = (_channel==ee && pass_os && pass_pt && pass_zveto && pass_pteta && mll > 12 && ptll > 30 && mth > 60 && metPfType1 > 45);
+    FillLevelHistograms(HWW_11_ptetaee,pass);
+	 pass = (pass_emu && pass_os && pass_pt && pass_zveto && pass_pteta && mll > 12 && ptll > 30 && mth > 60 && metPfType1 > 20);
+    FillLevelHistograms(HWW_12_ptetaemu,pass);
+	 pass = (_channel==mm && pass_os && pass_pt && pass_zveto && pass_pteta && mll > 12 && ptll > 30 && mth > 60 && metPfType1 > 45);
+    FillLevelHistograms(HWW_13_ptetamumu,pass);
+
+    //get rid of all the b-jets
+	 pass = (_channel==ee && pass_os && pass_pt && pass_zveto && pass_pteta && pass_bveto && mll > 12 && ptll > 30 && mth > 60 && metPfType1 > 45);
+    FillLevelHistograms(HWW_14_bvetoee,pass);
+	 pass = (pass_emu && pass_os && pass_pt && pass_zveto && pass_pteta && pass_bveto && mll > 12 && ptll > 30 && mth > 60 && metPfType1 > 20);
+    FillLevelHistograms(HWW_15_bvetoemu,pass);
+	 pass = (_channel==mm && pass_os && pass_pt && pass_zveto && pass_pteta && pass_bveto && mll > 12 && ptll > 30 && mth > 60 && metPfType1 > 45);
+    FillLevelHistograms(HWW_16_bvetomumu,pass);
+
+	}
+
+  
+
+  EndJob();
+}
+
+
+//------------------------------------------------------------------------------
+// FillLevelHistograms
+//------------------------------------------------------------------------------
+void AnalysisHWW::FillLevelHistograms(int  icut,
+					  bool pass)
+{
+  if (!_writehistograms) return;
+
+  if (!pass) return;
+
+  FillHistograms(_channel, icut, _jetbin);
+  FillHistograms(_channel, icut, njetbin);
+}
+
+

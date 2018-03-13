@@ -85,7 +85,7 @@ void runPlotter(TString level,
   //----------------------------------------------------------------------------
   plotter.AddProcess("07_ZJets",     "DY",        color_ZJets, roc_background, 1.0);
   plotter.AddProcess("03_VZ",        "Diboson",   color_VZ);
-  plotter.AddProcess("00_Fakes",     "Fakes",     color_Fakes, roc_background, -999);  // Don't lumi scale
+  plotter.AddProcess("00_Fakes",     "Fakes",     color_Fakes, roc_background, 1.0);  // Don't lumi scale
   plotter.AddProcess("09_TTV",       "t#bar{t}V", color_TTV);
   plotter.AddProcess("05_ST",        "tW",        color_ST);
   plotter.AddProcess("04_TTTo2L2Nu", "t#bar{t}",  color_TTTo2L2Nu, roc_background, 1.0);

@@ -132,7 +132,7 @@ const bool systematicfromweight[nsystematic] = {
 // Process colors
 //------------------------------------------------------------------------------
 const Color_t color_Prefit    = kBlue+1;
-const Color_t color_Signal    = kRed+1;
+const Color_t color_Signal    = kRed;
 const Color_t color_Fakes     = kGray+1;
 const Color_t color_Data      = kBlack;
 const Color_t color_WZTo3LNu  = kOrange-2;
@@ -145,7 +145,7 @@ const Color_t color_ZJetsToTT = kGreen+3;
 const Color_t color_WJets     = kGray+1;
 const Color_t color_TTV       = kGreen-6;
 const Color_t color_TTZ       = kOrange+2;
-const Color_t color_HWW       = kRed;
+const Color_t color_HWW       = kAzure-7;
 const Color_t color_Wg        = kBlue;
 const Color_t color_WgStar    = kBlue+2;
 const Color_t color_Zg        = kTeal;
