@@ -11,11 +11,15 @@ enum {
   HWW_03_MET,
   HWW_04_Mth,
   HWW_05_bveto,
-  HWW_06_mllHighNOdphiMET,
-  HWW_07_TopControl0Jet,
-  HWW_08_TopControl1Jet,
-  HWW_09_WWControl0Jet,
-  HWW_10_WWControl1Jet,
+  HWW_06_dphillMet,
+  HWW_07_mllHigh,
+  HWW_08_dphill,
+  HWW_09_mllHighNOdphiMET,
+  HWW_10_dphillNOdphiMET,
+  HWW_11_TopControl0Jet,
+  HWW_12_TopControl1Jet,
+  HWW_13_WWControl0Jet,
+  HWW_14_WWControl1Jet,
   ncut  // This line should be always last
 };
 

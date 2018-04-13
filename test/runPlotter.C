@@ -3,10 +3,15 @@
 
 // Constants
 //------------------------------------------------------------------------------
-const Bool_t allplots   = false;
+
+Float_t topScale =1.0;//2064;//note that this is ONLY for em channel
+Float_t WWScale=1.0;//7361;//note that this is ONLY for em channel
+
+
+const Bool_t allplots   = true;
 const Bool_t datadriven = true;
 const Bool_t drawroc    = false;
-const Bool_t basictest  = true;
+const Bool_t basictest  = false;
 
 const TString inputdir  = "../rootfiles/nominal/";
 const TString outputdir = "figures/";
@@ -80,7 +85,7 @@ void runPlotter(TString level,
   //----------------------------------------------------------------------------
   plotter.AddData("01_Data", "Data", color_Data);
 
-
+  
   // Add processes
   //----------------------------------------------------------------------------
   plotter.AddProcess("07_ZJets",     "DY",        color_ZJets, roc_background, 1.0);
@@ -88,13 +93,13 @@ void runPlotter(TString level,
   plotter.AddProcess("00_Fakes",     "Fakes",     color_Fakes, roc_background, -999);  // Don't lumi scale
   plotter.AddProcess("09_TTV",       "t#bar{t}V", color_TTV);
   plotter.AddProcess("05_ST",        "tW",        color_ST);
-  plotter.AddProcess("04_TTTo2L2Nu", "t#bar{t}",  color_TTTo2L2Nu, roc_background, 1.0);
+  plotter.AddProcess("04_TTTo2L2Nu", "t#bar{t}",  color_TTTo2L2Nu, roc_background, topScale);//scale this
   plotter.AddProcess("14_HZ",        "HZ",        color_HZ);
-  plotter.AddProcess("10_HWW",       "HWW",       color_HWW);
-  plotter.AddProcess("06_WW",        "WW",        color_WW, roc_signal);
+  plotter.AddProcess("06_WW",        "WW",        color_WW, roc_signal, WWScale);//scale this
   plotter.AddProcess("02_WZTo3LNu",  "WZ",        color_WZTo3LNu);
   plotter.AddProcess("11_Wg",        "W#gamma",   color_Wg);
   plotter.AddProcess("15_WgStar",    "W#gamma*",  color_WgStar);
+  plotter.AddProcess("10_HWW",       "HWW",       color_HWW);
 //plotter.AddProcess("12_		 ",	 "			 ",  color_		  );
 //plotter.AddProcess("13_		 ",	 "			 ",  color_		  );
   // Add prefit and signal
@@ -126,7 +131,10 @@ void runPlotter(TString level,
   for (int i=firstchannel; i<=lastchannel; i++)
     {
       if (basictest && i != lastchannel) continue;
-
+		if (i==1){
+		  topScale=1.0;
+	 	  WWScale=1.0;
+  		}
       plotter.LoopEventsByCut(analysis, "h_counterLum_" + schannel[i]);
 
       TString title = (i < lastchannel) ? lchannel[i] : "inclusive";
@@ -141,7 +149,7 @@ void runPlotter(TString level,
   //----------------------------------------------------------------------------
   plotter.SetDrawYield(false);
 
-  for (int j=0; j<=njetbin; j++)
+  for (int j=0; j<=2; j++)
     {
       if (!analysis.EqualTo("Control") &&
 	  !analysis.EqualTo("Stop")    &&
