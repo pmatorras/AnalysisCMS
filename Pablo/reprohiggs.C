@@ -1,0 +1,124 @@
+#define reprohiggs_cxx
+#include "reprohiggs.h"
+#include <TH2.h>
+#include <TStyle.h>
+#include <TCanvas.h>
+
+void reprohiggs::Loop()
+{
+//   In a ROOT session, you can do:
+//      Root > .L reprohiggs.C
+//      Root > reprohiggs t
+//      Root > t.GetEntry(12); // Fill t data members with entry number 12
+//      Root > t.Show();       // Show values of entry 12
+//      Root > t.Show(16);     // Read and show values of entry 16
+//      Root > t.Loop();       // Loop on all entries
+//
+
+//     This is the loop skeleton where:
+//    jentry is the global entry number in the chain
+//    ientry is the entry number in the current Tree
+//  Note that the argument to GetEntry must be:
+//    jentry for TChain::GetEntry
+//    ientry for TTree::GetEntry and TBranch::GetEntry
+//
+//       To read only selected branches, Insert statements like:
+// METHOD1:
+//    filechain->SetBranchStatus("*",0);  // disable all branches
+//    filechain->SetBranchStatus("branchname",1);  // activate branchname
+// METHOD2: replace line
+//    filechain->GetEntry(jentry);       //read all branches
+//by  b_branchname->GetEntry(ientry); //read only this branch
+   if (filechain == 0) return;
+	//if (fCurrent>0) return;
+   Long64_t nentries = filechain->GetEntriesFast();
+	cout<<nentries<<endl;
+	//set entries
+	filechain->SetBranchStatus("*",0);
+	filechain->SetBranchStatus("ptll",1); 
+	filechain->SetBranchStatus("pt1",1); 
+	filechain->SetBranchStatus("pt2",1); 
+	filechain->SetBranchStatus("phi1",1); 
+	filechain->SetBranchStatus("phi2",1); 
+   Long64_t nbytes = 0, nb = 0;
+	//initialise histograms
+	TH1F *h_ptll= new TH1F("h_ptll","h_ptll",500,0,200);
+	TH1F *h_pt1 = new TH1F("h_pt1","h_pt1",150,0,500);
+	TH1F *h_pt2 = new TH1F("h_pt2","h_pt2",150,0,500);
+	TH1F *h_phi1 = new TH1F("h_phi1","h_phi1",50,0,3.5);
+	TH1F *h_phi2= new TH1F("h_phi2","h_phi2",50,0,3.5);
+	TH1F *h_dphillmet= new TH1F("h_dphillmet","h_dphillmet",1000,0,20);
+	TH1F *h_dphill= new TH1F("h_dphill","h_dphill",1000,0,2);
+
+	TFile *MyFile = new TFile(filename+"total2.root","RECREATE");
+	//loop over the entries
+
+   //TTree *T     = new TTree("T","test");
+   for (Long64_t jentry=0; jentry<nentries;jentry++) {
+      Long64_t ientry = LoadTree(jentry);
+      if (ientry < 0) break;
+      nb = filechain->GetEntry(jentry);   nbytes += nb;
+		//TTree *treeptll    = new TTree("treeptll","ptll plot");
+		
+		h_ptll->Fill(ptll);	
+		h_pt1 ->Fill(pt1);
+		h_pt2 ->Fill(pt2);
+		h_phi1 ->Fill(phi1);
+		h_phi2->Fill(phi2);
+		h_dphillmet->Fill(dphillmet);
+		h_dphill   ->Fill(dphill);
+		//T-> Fill();
+      // if (Cut(ientry) < 0) continue;
+   }
+	//T-> Print();
+	MyFile->Write();
+	// Trying to fit to a Breit-Wigner function
+	/*Double_t mybw(Double_t* x, Double_t* par)
+	{
+	  Double_t arg1 = 14.0/22.0; // 2 over pi
+	  Double_t arg2 = par[1]*par[1]*par[2]*par[2]; //Gamma=par[1]  M=par[2]
+	  Double_t arg3 = ((x[0]*x[0]) - (par[2]*par[2]))*((x[0]*x[0]) - (par[2]*par[2]));
+	  Double_t arg4 = x[0]*x[0]*x[0]*x[0]*((par[1]*par[1])/(par[2]*par[2]));
+	  return par[0]*arg1*arg2/(arg3 + arg4);
+	}*/
+	TF1 *func = new TF1("mybw", "TMath::BreitWigner(x,[0],[1])",0,200);
+	func->SetParameter(1,25.0);     func->SetParName(1,"sigma");
+	func->SetParameter(0,55.0);    func->SetParName(0,"mean");
+
+	// Create a THStack for add all ptll's
+/*
+	THStack *ptllsum = new THStack("ptllsum","ptll tot");
+	ptllsum -> Add(ptll);
+	ptllsum -> Add(ptll2);
+	ptll -> SetFillColor(kBlue)
+*/
+	// Make the plots
+	TCanvas *cs = new TCanvas("cs","cs",10,10,900,1600);
+	//gStyle->SetOptStat(0);
+
+   cs->Divide(3,2,0,0);
+	cs -> cd(1);
+	//h_ptll->Fit("mybw","","",0.,200.);
+	//TF1 *fit = h_ptll->GetFunction("mybw");
+	h_ptll->Draw();
+	//ptllsum->Draw();
+	//h_pt1->Draw();
+	//fit->Draw("SAME");
+	cs->cd(2);
+	
+	h_pt1->Draw();
+	cs->cd(3);
+	h_pt2->Draw();
+	cs->cd(4);
+	h_phi1->Draw();
+	cs->cd(5);
+	h_phi2->Draw();
+	cs->cd(6);
+	//h_njet->Draw();
+
+
+	if ( MyFile->IsOpen() ) printf("File opened successfully\n");
+	
+	
+
+}
