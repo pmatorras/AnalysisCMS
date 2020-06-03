@@ -1,5 +1,5 @@
 #include "HistogramReader.h"
-
+#include "TCanvas.h"
 using namespace std;
 
 
@@ -47,7 +47,7 @@ HistogramReader::HistogramReader(const TString& inputdir,
   _signalcolor.clear();
   _signallabel.clear();
   _signalscale.clear();
-
+	output = new TFile( "test.root", "recreate");
   TH1::SetDefaultSumw2();
 }
 
@@ -742,7 +742,11 @@ void HistogramReader::Draw(TString hname,
       printf("\n [HistogramReader::Draw] Barbara's stuff\n\n");
     }
 
-
+		output->cd();
+		//if(hfirst!=NULL) hfirst->Write();
+		//hfirst->Draw();
+pad1->Draw();  
+	output->Write("", TObject::kOverwrite);
   //----------------------------------------------------------------------------
   // Save it
   //----------------------------------------------------------------------------
@@ -757,6 +761,8 @@ void HistogramReader::Draw(TString hname,
       
       _yields_table.close();
     }
+		
+
 }
 
 

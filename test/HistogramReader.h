@@ -33,7 +33,7 @@ class HistogramReader
   HistogramReader(const TString& inputdir,
 		  const TString& outputdir);
 
-  ~HistogramReader() {}
+  ~HistogramReader() {output->Close();}
  
   void     AddData            (const TString& filename,
 			       const TString& label,
@@ -174,7 +174,7 @@ class HistogramReader
 
   void 	   IncludeSystematics (TString        hname);
 
-
+	TFile* output=NULL;
  private :
 
   Bool_t                _changelabel;

@@ -114,26 +114,17 @@ void AnalysisHWW::Loop(TString analysis, TString filename, float luminosity){
     bool pass_emu=(_channel==em);
 	 bool pass_zveto = (_channel == em || fabs(mll - Z_MASS) > 15);
 
+ 	 	 //b tags and bvetos for 0 and 1 jet
  	 bool pass_bveto = true;
+	 bool pass_btag = false;
+	 bool pass_btag1jet = true;
 	 for (int j=0; j<std_vector_jet_pt->size(); j++){
 		 pass_bveto &= (std_vector_jet_pt->at(j) < 20 || std_vector_jet_cmvav2->at(j) < -0.5884);
-    }
-
-	 bool pass_btag = false;
-    for (int j=0; j<std_vector_jet_pt->size(); j++){
 	 	 pass_btag |=(std_vector_jet_pt->at(j) < 30 && std_vector_jet_cmvav2->at(j) > -0.5884);
-		 //std::cout<< "pass btag " << pass_btag << std::endl;
-    }
-	 bool pass_bveto1jet = true;
-	 for (int j=0; j<std_vector_jet_pt->size(); j++){
-		 pass_bveto &= ((std_vector_jet_pt->at(j) < 30 && std_vector_jet_pt->at(j)>20 ) || std_vector_jet_cmvav2->at(j) < -0.5884);
+		 pass_btag1jet &= ((std_vector_jet_pt->at(j) < 30 && std_vector_jet_pt->at(j)>20 ) || std_vector_jet_cmvav2->at(j) < -0.5884);
     }
 	
-	 bool pass_btag1jet = true;
-    for (int j=0; j<std_vector_jet_pt->size(); j++){
-		 	 pass_btag1jet &= (std_vector_jet_pt->at(j) > 30 && std_vector_jet_cmvav2->at(j) > -0.5884);
-
-    }
+	
 	 //std::cout<< "pass btag med" << pass_btag << std::endl;
     // HWW
     // https://github.com/latinos/PlotsConfigurations/blob/master/Configurations/HWWRegions/WW/Full2016/cuts.py
@@ -159,25 +150,26 @@ void AnalysisHWW::Loop(TString analysis, TString filename, float luminosity){
     FillLevelHistograms(HWW_05_bveto,pass);
 
 	 //same cut on high mll but without the METdphill cut
-	 pass = (pass_os && pass_pt && pass_zveto && pass_bveto && mll > 12 && ptll > 30 && mth > 60 && metPfType1 > metcut && mll<55);
+	 pass = (pass_os && pass_pt && pass_zveto && pass_bveto && mll > 12 && ptll > 30 && mth > 60 && metPfType1 > metcut && mll<55 && dphill<2.0);
     FillLevelHistograms(HWW_06_mllHighNOdphiMET,pass);
 	
 	 //---------------------------------------------------------------------------------
 	 //Control regions
 	 //TOP
 	 //0jets
-	 pass = (pass_os && pass_pt && pass_zveto && mll > 55 && ptll > 30 && metPfType1 > metcut && _dphillmet>1.57 && dphill<1.8 && pass_btag);
+	 pass = (pass_os && pass_pt && pass_zveto && mll > 55 && ptll > 30 && metPfType1 > metcut && _dphillmet>1.57 && dphill<1.8 && !pass_bveto);
     FillLevelHistograms(HWW_07_TopControl0Jet,pass);
-
+	
 	 //1jet
-	 pass = (pass_os && pass_pt && pass_zveto && mll > 55 && ptll > 30 && mth > 60 && metPfType1 > metcut  && dphill<1.8 && pass_bveto1jet && pass_btag);
+	 pass = (pass_os && pass_pt && pass_zveto && mll > 55 && ptll > 30 && mth > 60 && metPfType1 > metcut  && dphill<1.8 && !pass_btag && _nbjet30cmvav2l==1 );
     FillLevelHistograms(HWW_08_TopControl1Jet,pass);
+
 	 //WW 
 	 //0jets
-	 pass = (pass_os && pass_pt && pass_zveto && pass_bveto && mll > 80 && ptll > 30 && mth > 60 && metPfType1 > metcut && _dphillmet>1.57 && dphill>1.8);
+	 pass = (pass_os && pass_pt && pass_zveto && pass_bveto && mll > 80 && ptll > 30 && mth > 60 && metPfType1 > metcut && _dphillmet>1.57 && dphill<2.0);
     FillLevelHistograms(HWW_09_WWControl0Jet,pass);
     //1jet
-	 pass = (pass_os && pass_pt && pass_zveto && pass_bveto && mll > 80 && ptll > 30 && mth > 60 && metPfType1 > metcut && _dphillmet>1.57);
+	 pass = (pass_os && pass_pt && pass_zveto && pass_bveto && mll > 80 && ptll > 30 && mth > 60 && metPfType1 > metcut && _dphillmet>1.57 && dphill<2.0);
     FillLevelHistograms(HWW_10_WWControl1Jet,pass);
 	}
 

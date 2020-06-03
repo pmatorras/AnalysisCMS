@@ -57,7 +57,7 @@ double       top_bkg_err    [ll];
 // Functions
 //------------------------------------------------------------------------------
 
-void getTopScale0jet  (TString analysis = "HWW", TString Top_control_level = "07_TopControl0Jet/0jet", TString HWW_signal_level = "06_dphillNOdphiMET/0jet", double lumi_fb = 35.9) {
+void getTopScale0jet  (TString analysis = "HWW", TString Top_control_level = "07_TopControl0Jet/0jet", TString HWW_signal_level = "06_mllHighNOdphiMET/0jet", double lumi_fb = 35.9) {
 
   // Monte-Carlo files are scaled to luminosity but fakes and data are not.
   TFile* file_data = new TFile("../rootfiles/nominal/" + analysis + "/01_Data.root",     "read");
